@@ -47,7 +47,7 @@ public class SecondFragment extends Fragment {
         binding.addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_cameraFragment);
             }
         });
         binding.negativeTxtBtn.setOnClickListener(new View.OnClickListener() {
