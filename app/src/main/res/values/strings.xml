@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">ODT_Task</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="patient_exam_headline">\"Edit Exam - patient %1$s\"</string>
+    <string name="exam_images_number">\"Number of images: %1$d\"</string>
+</resources>
