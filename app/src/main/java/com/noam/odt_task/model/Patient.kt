@@ -1,10 +1,26 @@
 package com.noam.odt_task.model
 
-import android.media.Image
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
+import com.noam.odt_task.db.type_converters.ImageConverter
 
-data class Patient(val name : String, val avatar : String, val clinicianNotes : String, val images : List<Image>) {
-    constructor(name: String) : this(name, "", "", emptyList<Image>())
+@Entity
+data class Patient(
+    @PrimaryKey @SerializedName("name") val name : String,
+    @SerializedName("avatar") val avatar : String,
+    @SerializedName("clinician_notes") val clinicianNotes : String,
+    @field:TypeConverters(ImageConverter::class)
+    @SerializedName("images") val images : Images) {
+    constructor(name: String) : this(name, "", "", Images(emptyList()))
+
     companion object {
-        fun emptyPatient() : Patient = Patient("", "", "", emptyList())
+        fun emptyPatient() : Patient = Patient("", "", "", Images(emptyList()))
+
+        fun patientToJson(patient: Patient): String? {
+            return Gson().toJson(patient)
+        }
     }
 }

@@ -61,13 +61,6 @@ public class FirstFragment extends Fragment implements PatientAdapterOnClickList
         recyclerView.setAdapter(patientDataAdapter);
         addSwipeActionsToRecyclerView();
 
-        binding.viewPatients.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(FirstFragment.this)
-                        .navigate(R.id.action_FirstFragment_to_SecondFragment);
-            }
-        });
         observePatients();
     }
 
@@ -113,6 +106,7 @@ public class FirstFragment extends Fragment implements PatientAdapterOnClickList
     @Override
     public void onItemClickListener(Patient patient) {
         patientViewModel.setPatientChosenForExam(patient);
+        patientViewModel.setPatientExamImages(patient.getImages().getImages());
         NavHostFragment.findNavController(FirstFragment.this)
                 .navigate(R.id.action_FirstFragment_to_SecondFragment);
     }

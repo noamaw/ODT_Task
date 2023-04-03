@@ -41,28 +41,20 @@ public class SecondFragment extends Fragment {
 
         Log.d("TAG", "onViewCreated: patient chosen for exam is "+patient.getName());
         binding.patientExamHeadline.setText(getString(R.string.patient_exam_headline, patient.getName()));
-        binding.numberOfImagesTxt.setText(getString(R.string.exam_images_number, patient.getImages().size()));
+        binding.numberOfImagesTxt.setText(getString(R.string.exam_images_number, patient.getImages().getImages().size()));
         binding.clinicianNotesEditText.setText(patient.getClinicianNotes());
 
-        binding.addImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_cameraFragment);
-            }
+        binding.addImageButton.setOnClickListener(view1 -> NavHostFragment.findNavController(SecondFragment.this).navigate(R.id.action_SecondFragment_to_cameraFragment));
+        binding.negativeTxtBtn.setOnClickListener(view12 -> NavHostFragment.findNavController(SecondFragment.this)
+                .navigate(R.id.action_SecondFragment_to_FirstFragment));
+        binding.positiveTxtBtn.setOnClickListener(view13 -> {
+            patientViewModel.saveNewPatient(
+                    patient.getName(),
+                    binding.clinicianNotesEditText.getText().toString(), "");
+            NavHostFragment.findNavController(SecondFragment.this)
+                    .navigate(R.id.action_SecondFragment_to_FirstFragment);
         });
-        binding.negativeTxtBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(SecondFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_FirstFragment);
-            }
-        });
-        binding.positiveTxtBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-            }
-        });
     }
 
     @Override

@@ -1,52 +1,55 @@
 package com.noam.odt_task.view
 
-import android.R.attr.bitmap
 import android.content.ContentResolver
 import android.graphics.*
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.NavHostFragment
+import com.bumptech.glide.Glide
 import com.noam.odt_task.BuildConfig
+import com.noam.odt_task.R
 import com.noam.odt_task.databinding.FragmentCameraBinding
+import com.noam.odt_task.view_models.PatientViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
-import java.util.*
 
-
+@AndroidEntryPoint
 class CameraFragment : Fragment() {
     private lateinit var binding: FragmentCameraBinding
+    private lateinit var patientViewModel: PatientViewModel
+
+    private val filteredImages = mutableListOf<Uri>()
+    private lateinit var chosenUri : Uri
     private val takeImageResult = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
         if (isSuccess) {
             latestTmpUri?.let { uri ->
                 binding.imagePreview.setImageURI(uri)
+                Log.d("TAG", "the uri we got is: $uri ")
+                chosenUri = uri
                 setFilterOptions(uri)
             }
         }
     }
 
-    private fun setFilterOptions(imageUri: Uri) {
-        var bitmap: Bitmap? = null
+    private fun setFilterOptions(uri: Uri) {
+        Log.d("TAG", "the uri we got is: $uri ")
         val contentResolver: ContentResolver = requireContext().contentResolver
-        try {
-            bitmap = if (Build.VERSION.SDK_INT < 28) {
-                MediaStore.Images.Media.getBitmap(contentResolver, imageUri)
-            } else {
-                val source = ImageDecoder.createSource(contentResolver, imageUri)
-                ImageDecoder.decodeBitmap(source)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        binding.grayScaleFilter.setImageBitmap(bitmap?.let { getGrayScaleBitmap(it) })
-        binding.greenScaleFilter.setImageBitmap(bitmap?.let { getGreenScaleBitmap(it) })
-        binding.noFilter.setImageBitmap(bitmap)
+        val source = ImageDecoder.createSource(contentResolver, uri)
+        val bitmap = ImageDecoder.decodeBitmap(source)
+//        binding.greenScaleFilter.setImageBitmap(bitmap)
+        patientViewModel.getFilteredImages(bitmap)
+        binding.greenScaleFilter.setImageResource(R.drawable.loading)
+        binding.grayScaleFilter.setImageResource(R.drawable.loading)
+        binding.noFilter.setImageResource(R.drawable.loading)
     }
 
     private var latestTmpUri: Uri? = null
@@ -62,11 +65,49 @@ class CameraFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        patientViewModel = ViewModelProvider(requireActivity())[PatientViewModel::class.java]
+        patientViewModel.filteredImages.observe(viewLifecycleOwner) {
+            Log.d("TAG", "fragment getFilteredImages: filtered images has ${filteredImages.size} elements and observed list has ${it.size}")
+            filteredImages.clear()
+            filteredImages.addAll(it)
+            setFilteredOptions()
+        }
         setClickListeners()
+    }
+
+    private fun setFilteredOptions() {
+        if (filteredImages.isEmpty()) { return }
+        binding.greenScaleFilter.setImageURI(filteredImages[0])
+        binding.grayScaleFilter.setImageURI(filteredImages[1])
+        binding.noFilter.setImageURI(filteredImages[2])
+
+        binding.greenScaleFilter.setOnClickListener {
+            binding.imagePreview.setImageURI(filteredImages[0])
+            chosenUri = filteredImages[0]
+        }
+        binding.grayScaleFilter.setOnClickListener {
+            binding.imagePreview.setImageURI(filteredImages[1])
+            chosenUri = filteredImages[1]
+        }
+        binding.noFilter.setOnClickListener {
+            binding.imagePreview.setImageURI(filteredImages[2])
+            chosenUri = filteredImages[2]
+        }
     }
 
     private fun setClickListeners() {
         binding.takeImageButton.setOnClickListener { takeImage() }
+        binding.imageCancelButton.setOnClickListener {
+            patientViewModel.deleteFilteredImages()
+            NavHostFragment.findNavController(this@CameraFragment)
+                .navigate(R.id.action_cameraFragment_to_SecondFragment)
+        }
+        binding.imageSaveButton.setOnClickListener {
+            patientViewModel.addUriToImages(chosenUri)
+            patientViewModel.deleteFilteredImages()
+            NavHostFragment.findNavController(this@CameraFragment)
+                .navigate(R.id.action_cameraFragment_to_SecondFragment)
+        }
     }
 
     private fun takeImage() {
@@ -87,47 +128,4 @@ class CameraFragment : Fragment() {
         return FileProvider.getUriForFile(requireContext().applicationContext, "${BuildConfig.APPLICATION_ID}.provider", tmpFile)
     }
 
-//    @Throws(IOException::class)
-//    private fun createImageFile(): File? {
-//        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-//        val imageFileName = "JPEG_" + timeStamp + "_"
-//        val storageDir =
-//            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) Environment.getExternalStoragePublicDirectory(
-//                Environment.DIRECTORY_PICTURES
-//            ) else requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-//        val image = File.createTempFile(
-//            imageFileName,  /* prefix */
-//            ".jpg",  /* suffix */
-//            storageDir /* directory */
-//        )
-//        currentPhotoPath = image.absolutePath
-//        return image
-//    }
-
-    fun getGrayScaleBitmap(original: Bitmap): Bitmap {
-        // You have to make the Bitmap mutable when changing the config because there will be a crash
-        // That only mutable Bitmap's should be allowed to change config.
-        val bmp = original.copy(Bitmap.Config.ARGB_8888, true)
-        val bmpGrayscale = Bitmap.createBitmap(bmp.width, bmp.height, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bmpGrayscale)
-        val paint = Paint()
-        val colorMatrix = ColorMatrix()
-        colorMatrix.setSaturation(0f)
-        val colorMatrixFilter = ColorMatrixColorFilter(colorMatrix)
-        paint.colorFilter = colorMatrixFilter
-        canvas.drawBitmap(bmp, 0F, 0F, paint)
-        return bmpGrayscale
-    }
-
-    fun getGreenScaleBitmap(original: Bitmap): Bitmap {
-        // You have to make the Bitmap mutable when changing the config because there will be a crash
-        // That only mutable Bitmap's should be allowed to change config.
-        val bmp = original.copy(Bitmap.Config.ARGB_8888, true)
-        for (x in 0 until bmp.width) {
-            for (y in 0 until bmp.height) {
-                bmp.setPixel(x, y, bmp.getPixel(x, y) and -0xff0100)
-            }
-        }
-        return bmp
-    }
 }
