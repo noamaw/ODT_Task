@@ -61,10 +61,6 @@ class PatientViewModel @Inject constructor(private val patientRepository: Patien
     }
 
     fun saveNewPatient(name: String, clinicianNotes: String, avatar: String) {
-        Log.d(
-            "TAG",
-            "saving the patient by the name of $name, with the clinician notes: $clinicianNotes, and with the avatar $avatar"
-        )
         viewModelScope.launch {
             patientRepository.savePatient(
                 name, clinicianNotes, Images(patientExamImages))
@@ -75,14 +71,8 @@ class PatientViewModel @Inject constructor(private val patientRepository: Patien
     fun checkUnique(name: String): Boolean {
         val patients = patientEmitter.value
         val names = patients?.map { it -> it.name }
-        Log.d(
-            "TAG",
-            "checkUnique: patients list = $patients, and all the names in the system are: $names"
-        )
         val found = names?.contains(name) ?: true
-        Log.d("TAG", "checkUnique: after running through the list $names, it is ${!found} that it is a unique name")
         return !found
-//        return patients.value?.map { it -> it.name }?.contains(name) ?: true
     }
 
     fun getFilteredImages(bitmap: Bitmap) {

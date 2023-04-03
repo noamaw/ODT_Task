@@ -33,7 +33,6 @@ class CameraFragment : Fragment() {
         if (isSuccess) {
             latestTmpUri?.let { uri ->
                 binding.imagePreview.setImageURI(uri)
-                Log.d("TAG", "the uri we got is: $uri ")
                 chosenUri = uri
                 setFilterOptions(uri)
             }
@@ -41,11 +40,9 @@ class CameraFragment : Fragment() {
     }
 
     private fun setFilterOptions(uri: Uri) {
-        Log.d("TAG", "the uri we got is: $uri ")
         val contentResolver: ContentResolver = requireContext().contentResolver
         val source = ImageDecoder.createSource(contentResolver, uri)
         val bitmap = ImageDecoder.decodeBitmap(source)
-//        binding.greenScaleFilter.setImageBitmap(bitmap)
         patientViewModel.getFilteredImages(bitmap)
         binding.greenScaleFilter.setImageResource(R.drawable.loading)
         binding.grayScaleFilter.setImageResource(R.drawable.loading)
@@ -67,7 +64,6 @@ class CameraFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         patientViewModel = ViewModelProvider(requireActivity())[PatientViewModel::class.java]
         patientViewModel.filteredImages.observe(viewLifecycleOwner) {
-            Log.d("TAG", "fragment getFilteredImages: filtered images has ${filteredImages.size} elements and observed list has ${it.size}")
             filteredImages.clear()
             filteredImages.addAll(it)
             setFilteredOptions()

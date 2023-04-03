@@ -39,7 +39,6 @@ public class SecondFragment extends Fragment {
         patientViewModel = new ViewModelProvider(requireActivity()).get(PatientViewModel.class);
         patient = patientViewModel.getPatientChosenForExam();
 
-        Log.d("TAG", "onViewCreated: patient chosen for exam is "+patient.getName());
         binding.patientExamHeadline.setText(getString(R.string.patient_exam_headline, patient.getName()));
         binding.numberOfImagesTxt.setText(getString(R.string.exam_images_number, patient.getImages().getImages().size()));
         binding.clinicianNotesEditText.setText(patient.getClinicianNotes());

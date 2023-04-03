@@ -1,6 +1,5 @@
 package com.noam.odt_task;
 
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,11 +13,8 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import dagger.hilt.EntryPoint;
-import dagger.hilt.InstallIn;
 import dagger.hilt.android.AndroidEntryPoint;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.noam.odt_task.databinding.FragmentFirstBinding;
 import com.noam.odt_task.model.Patient;
 import com.noam.odt_task.view.PatientAdapterOnClickListener;
@@ -26,9 +22,7 @@ import com.noam.odt_task.view.PatientDataAdapter;
 import com.noam.odt_task.view.ViewHelper;
 import com.noam.odt_task.view_models.PatientViewModel;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static com.noam.odt_task.view.ViewHelper.openConfirmationDialog;
 import static com.noam.odt_task.view.ViewHelper.openNewPatientDialog;
