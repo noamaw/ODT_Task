@@ -54,7 +54,6 @@ class PatientRepository @Inject constructor(private val database: AppDatabase, p
     // save patient into oom database first generate random avatar for him
     suspend fun savePatient(name: String, clinicianNotes: String, images: Images) {
         withContext(defaultDispatcher) {
-            val avatar = generateAvatar()
             database.patientDao().insertAll(Patient(name, generateAvatar(), clinicianNotes, images))
         }
     }

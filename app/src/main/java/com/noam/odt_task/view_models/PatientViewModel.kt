@@ -25,10 +25,6 @@ class PatientViewModel @Inject constructor(private val patientRepository: Patien
     val patients: LiveData<List<Patient>> = patientEmitter
 
     var patientChosenForExam : Patient = Patient.emptyPatient()
-        set(value) {
-            value
-            field = value
-        }
         get() {
             return Patient(field.name, field.avatar, field.clinicianNotes, Images(patientExamImages))
         }
@@ -60,7 +56,7 @@ class PatientViewModel @Inject constructor(private val patientRepository: Patien
         }
     }
 
-    fun saveNewPatient(name: String, clinicianNotes: String, avatar: String) {
+    fun saveNewPatient(name: String, clinicianNotes: String) {
         viewModelScope.launch {
             patientRepository.savePatient(
                 name, clinicianNotes, Images(patientExamImages))

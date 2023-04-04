@@ -1,7 +1,6 @@
 package com.noam.odt_task;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +48,7 @@ public class SecondFragment extends Fragment {
         binding.positiveTxtBtn.setOnClickListener(view13 -> {
             patientViewModel.saveNewPatient(
                     patient.getName(),
-                    binding.clinicianNotesEditText.getText().toString(), "");
+                    binding.clinicianNotesEditText.getText().toString());
             NavHostFragment.findNavController(SecondFragment.this)
                     .navigate(R.id.action_SecondFragment_to_FirstFragment);
         });
